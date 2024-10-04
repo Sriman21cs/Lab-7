@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add and Get Employees</title>
+</head>
+<body>
+    <h1>Add Employee</h1>
+    <form id="employeeForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <br><br>
+        <label for="position">Position:</label>
+        <input type="text" id="position" name="position" required>
+        <br><br>
+        <button type="submit">Add Employee</button>
+    </form>
+
+    <h2>Employee List</h2>
+    <div id="employeeList">
+        <!-- Employee list will be displayed here -->
+    </div>
+
+    <script>
+        // Handle form submission to add an employee
+        document.getElementById("employeeForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const name = document.getElementById("name").value;
+            const position = document.getElementById("position").value;
+
+            const response = await fetch('/add-employee', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, position })
+            });
+
+            if (response.ok) {
+                alert('Employee added successfully!');
+                loadEmployees();
+            } else {
+                alert('Failed to add employee.');
+            }
+
+            // Clear the form
+            document.getElementById("name").value = "";
+            document.getElementById("position").value = "";
+        });
+
+        // Function to load and display the list of employees
+        async function loadEmployees() {
+            const response = await fetch('/employees');
+            const employees = await response.json();
+
+            const employeeList = document.getElementById("employeeList");
+            employeeList.innerHTML = "";
+
+            employees.forEach(employee => {
+                const div = document.createElement("div");
+                div.innerHTML = `<strong>${employee.name}</strong>: ${employee.position}`;
+                employeeList.appendChild(div);
+            });
+        }
+
+        // Load employees when the page loads
+        window.onload = loadEmployees;
+    </script>
+</body>
+</html>
